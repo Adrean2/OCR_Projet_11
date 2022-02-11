@@ -45,7 +45,14 @@ def book(competition,club):
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
-    placesRequired = int(request.form['places'])
+    try :
+        placesRequired = int(request.form['places'])
+        if placesRequired <1:
+            raise ValueError
+    except ValueError:
+        error = "Utilisez un chiffre positif !"
+        return render_template("booking.html",club=club, competition=competition, error=error)
+    
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
