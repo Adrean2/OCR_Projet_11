@@ -26,7 +26,15 @@ def index():
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
-    club = [club for club in clubs if club['email'] == request.form['email']][0]
+    try:
+        if not request.form["email"]:
+            raise ValueError("Vous devez inscrire une adresse email.")
+        club = [club for club in clubs if club['email'] == request.form['email']]
+        if club == []:
+            raise ValueError("Vous devez utiliser une adresse email valide.")
+    except ValueError as error:
+        return render_template('index.html',error=error)
+
     return render_template('welcome.html',club=club,competitions=competitions)
 
 
