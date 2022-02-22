@@ -66,7 +66,7 @@ def purchasePlaces():
     except ValueError as error:
         return render_template("booking.html",club=club,competition=competition,error=error)
     flash('Great-booking complete!')
-    return render_template('welcome.html', club=club, competitions=competitions,error=error)
+    return render_template('welcome.html', club=club, competitions=competitions)
 
 
 # TODO: Add route for points display
