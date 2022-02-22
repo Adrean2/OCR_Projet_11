@@ -59,12 +59,14 @@ def purchasePlaces():
             raise ValueError("Vous n'avez pas assez de points pour réserver")
         elif placesRequired > 12:
             raise ValueError("Vous ne pouvez pas réserver + de 12 places")
+        elif placesRequired <1:
+            raise ValueError("Utilisez un chiffre positif !")
         else:
             competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-int(placesRequired)
     except ValueError as error:
         return render_template("booking.html",club=club,competition=competition,error=error)
     flash('Great-booking complete!')
-    return render_template('welcome.html', club=club, competitions=competitions)
+    return render_template('welcome.html', club=club, competitions=competitions,error=error)
 
 
 # TODO: Add route for points display
