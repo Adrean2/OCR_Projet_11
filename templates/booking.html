@@ -2,6 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {%if not error %}
     <title>Booking for {{competition['name']}} || GUDLFT</title>
 </head>
 <body>
@@ -13,5 +14,9 @@
         <label for="places">How many places?</label><input type="number" name="places" id=""/>
         <button type="submit">Book</button>
     </form>
+    {%else%}
+    <title>{{error}}</title>
+    {{error}}
+    {%endif%}
 </body>
 </html>
