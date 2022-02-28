@@ -67,16 +67,17 @@ def purchasePlaces():
     placesRequired = int(request.form['places'])
     try:
         if int(club["points"]) < placesRequired:
-            raise ValueError("Vous n'avez pas assez de points pour réserver")
+            raise ValueError("Vous n'avez pas assez de points pour reserver")
         elif placesRequired > 12:
-            raise ValueError("Vous ne pouvez pas réserver + de 12 places")
+            raise ValueError("Vous ne pouvez pas reserver + de 12 places")
         elif placesRequired <1:
             raise ValueError("Utilisez un chiffre positif !")
         else:
             competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-int(placesRequired)
+            club["points"]= int(club["points"]) - placesRequired*3
+            flash('Great-booking complete!')
     except ValueError as error:
         return render_template("booking.html",club=club,competition=competition,error=error)
-    flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
 
