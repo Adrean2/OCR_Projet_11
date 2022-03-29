@@ -8,3 +8,6 @@ __pycache__
 *.xml
 Pipfile.lock
 Pipfile
+.idea/Python_Testing-master.iml
+P11_02_Coverage.png
+locustfile.py

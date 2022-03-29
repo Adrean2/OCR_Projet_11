@@ -65,7 +65,7 @@ def book(competition, club):
         if competition_time < current_time:
             raise ValueError("Cette competition est fini, vous ne pouvez plus reserver")
         else:
-            return render_template("booking.html",competition=foundCompetition,club=foundClub)
+            return render_template("booking.html", competition=foundCompetition, club=foundClub)
     except ValueError as error:
         flash(error)
         return render_template('welcome.html', club=foundClub, competitions=competitions)
@@ -81,7 +81,7 @@ def purchasePlaces():
         else:
             placesRequired = int(request.form['places'])
     except ValueError as error:
-        return render_template("booking.html",club=club,competition=competition,error=error)
+        return render_template("booking.html", club=club, competition=competition, error=error)
     try:
         if placesRequired >= 12:
             raise ValueError("Vous ne pouvez pas reserver + de 12 places")
@@ -89,15 +89,15 @@ def purchasePlaces():
             raise ValueError("Il vous faut plus de points pour reserver")
         elif placesRequired < 1:
             raise ValueError("Utilisez un chiffre positif !")
-        elif type(placesRequired) is not int:
-            raise ValueError("Utilisez une valeur valide")
+        elif placesRequired > int(competition["numberOfPlaces"]):
+            raise ValueError(f"Veuillez reserver dans la limite disponible")
         else:
             competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-int(placesRequired)
-            club["points"]= int(club["points"]) - placesRequired*POINTS_COST_PER_PLACE
+            club["points"] = int(club["points"]) - placesRequired*POINTS_COST_PER_PLACE
             flash('Great-booking complete!')
             return render_template('welcome.html', club=club, competitions=competitions)
     except ValueError as error:
-        return render_template("booking.html",club=club,competition=competition,error=error)
+        return render_template("booking.html", club=club, competition=competition, error=error)
 
 
 @app.route('/logout')
