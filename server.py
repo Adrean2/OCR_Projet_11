@@ -2,6 +2,7 @@ import json
 from multiprocessing.sharedctypes import Value
 from tkinter.tix import INTEGER
 from flask import Flask,render_template,request,redirect,flash,url_for
+from datetime import datetime
 
 
 def loadClubs():
@@ -23,9 +24,11 @@ competitions = loadCompetitions()
 clubs = loadClubs()
 POINTS_COST_PER_PLACE = 3
 
+
 @app.route('/')
 def index():
     return render_template('index.html',clubs=clubs)
+
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
@@ -56,8 +59,18 @@ def book(competition,club):
         elif not Competition:
             raise IndexError("Renseignez une competition valide")
 
-        if foundClub and foundCompetition:
-            return render_template('booking.html',club=foundClub,competition=foundCompetition)
+        else:
+            try:
+                current_time = datetime.now()
+                competition_time = datetime.strptime(foundCompetition["date"], "%Y-%m-%d %H:%M:%S")
+                # Vérifie que la compétition est pas terminée.
+                if competition_time < current_time:
+                    raise ValueError("Cette competition est fini, vous ne pouvez plus reserver")
+                elif foundClub and foundCompetition:
+                    return render_template('booking.html', club=foundClub, competition=foundCompetition)
+            except ValueError as error:
+                flash(error)
+                return render_template('welcome.html', club=foundClub, competitions=competitions)
 
     except IndexError as error:
         return render_template('booking.html',competition=competition,club=club,error=error)
