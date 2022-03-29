@@ -6,3 +6,5 @@ tests/
 .envrc
 __pycache__
 *.xml
+Pipfile.lock
+Pipfile
