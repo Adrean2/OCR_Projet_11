@@ -15,5 +15,10 @@
     {%if error%}
     {{error}}
     {%endif%}
+    <ul>
+        {%for club in clubs%}
+        <li>{{club["name"]}}: {{club["points"]}} points</li>
+        {%endfor%}
+    </ul>
 </body>
 </html>

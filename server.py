@@ -1,4 +1,6 @@
 import json
+from multiprocessing.sharedctypes import Value
+from tkinter.tix import INTEGER
 from flask import Flask,render_template,request,redirect,flash,url_for
 
 
@@ -19,10 +21,11 @@ app.secret_key = 'something_special'
 
 competitions = loadCompetitions()
 clubs = loadClubs()
+POINTS_COST_PER_PLACE = 3
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html',clubs=clubs)
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
@@ -33,9 +36,9 @@ def showSummary():
         if club == []:
             raise ValueError("Vous devez utiliser une adresse email valide.")
     except ValueError as error:
-        return render_template('index.html',error=error)
+        return render_template('index.html',error=error,clubs=clubs)
 
-    return render_template('welcome.html',club=club,competitions=competitions)
+    return render_template('welcome.html',club=club[0],competitions=competitions)
 
 
 @app.route('/book/<competition>/<club>')
@@ -57,31 +60,36 @@ def book(competition,club):
             return render_template('booking.html',club=foundClub,competition=foundCompetition)
 
     except IndexError as error:
-        return render_template('booking.html',error=error)
+        return render_template('booking.html',competition=competition,club=club,error=error)
 
 
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
-    placesRequired = int(request.form['places'])
     try:
-        if int(club["points"]) < placesRequired:
-            raise ValueError("Vous n'avez pas assez de points pour reserver")
-        elif placesRequired > 12:
-            raise ValueError("Vous ne pouvez pas reserver + de 12 places")
-        elif placesRequired <1:
-            raise ValueError("Utilisez un chiffre positif !")
+        if not request.form["places"]:
+            raise ValueError("Ecrivez une valeur")
         else:
-            competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-int(placesRequired)
-            club["points"]= int(club["points"]) - placesRequired*3
-            flash('Great-booking complete!')
+            placesRequired = int(request.form['places'])
     except ValueError as error:
         return render_template("booking.html",club=club,competition=competition,error=error)
-    return render_template('welcome.html', club=club, competitions=competitions)
-
-
-# TODO: Add route for points display
+    try:
+        if placesRequired >= 12:
+            raise ValueError("Vous ne pouvez pas reserver + de 12 places")
+        elif int(club["points"]) < placesRequired*POINTS_COST_PER_PLACE:
+            raise ValueError("Il vous faut plus de points pour reserver")
+        elif placesRequired < 1:
+            raise ValueError("Utilisez un chiffre positif !")
+        elif type(placesRequired) is not int:
+            raise ValueError("Utilisez une valeur valide")
+        else:
+            competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-int(placesRequired)
+            club["points"]= int(club["points"]) - placesRequired*POINTS_COST_PER_PLACE
+            flash('Great-booking complete!')
+            return render_template('welcome.html', club=club, competitions=competitions)
+    except ValueError as error:
+        return render_template("booking.html",club=club,competition=competition,error=error)
 
 
 @app.route('/logout')
