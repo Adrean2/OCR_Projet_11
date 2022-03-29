@@ -1,5 +1,6 @@
 import json
 from flask import Flask,render_template,request,redirect,flash,url_for
+from datetime import datetime
 
 
 def loadClubs():
@@ -31,14 +32,24 @@ def showSummary():
 
 
 @app.route('/book/<competition>/<club>')
-def book(competition,club):
+def book(competition, club):
     foundClub = [c for c in clubs if c['name'] == club][0]
     foundCompetition = [c for c in competitions if c['name'] == competition][0]
+    try:
+        current_time = datetime.now()
+        competition_time = datetime.strptime(foundCompetition["date"], "%Y-%m-%d %H:%M:%S")
+        # Vérifie que la compétition est pas terminée.
+        if competition_time < current_time:
+            raise ValueError("Cette competition est fini, vous ne pouvez plus reserver")
+    except ValueError as error:
+        flash(error)
+        return render_template('welcome.html', club=foundClub, competitions=competitions)
+
     if foundClub and foundCompetition:
-        return render_template('booking.html',club=foundClub,competition=foundCompetition)
+        return render_template('booking.html', club=foundClub, competition=foundCompetition)
     else:
         flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        return render_template('welcome.html', club=foundClub, competitions=competitions)
 
 
 @app.route('/purchasePlaces',methods=['POST'])
